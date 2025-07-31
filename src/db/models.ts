@@ -90,14 +90,11 @@ export const getMessagesWithParticipantByConversationId = async (
 ) => {
   return await db
     .select({
-      message: messages,
-      participant: {
-        id: participants.id,
-        username: participants.username,
-        role: participants.role,
-        createdAt: participants.createdAt,
-        updatedAt: participants.updatedAt,
-      },
+      id: messages.id,
+      content: messages.content,
+      username: participants.username,
+      role: participants.role,
+      createdAt: messages.createdAt,
     })
     .from(messages)
     .innerJoin(participants, eq(messages.participantId, participants.id))
