@@ -5,6 +5,7 @@ import {
   getAllConversations,
   deleteConversationById,
   createMessage,
+  deleteMessageById,
   getMessagesWithParticipantByConversationId,
   createParticipant,
   getParticipantByUsername,
@@ -166,6 +167,27 @@ app.get("/conversations/:conversationId/messages", async (c) => {
   } catch (error) {
     console.error("Error fetching messages:", error)
     return c.json({ success: false, error: "Failed to fetch messages" }, 500)
+  }
+})
+
+// Delete a message by ID
+app.delete("/conversations/:conversationId/messages/:messageId", async (c) => {
+  try {
+    const messageId = parseInt(c.req.param("messageId"))
+
+    // Check if message exists
+    // Note: In a production environment, you might want to verify that the message
+    // belongs to the specified conversation and that the user has permission to delete it
+    const result = await deleteMessageById(messageId)
+
+    if (result.length === 0) {
+      return c.json({ success: false, error: "Message not found" }, 404)
+    }
+
+    return c.json({ success: true, message: "Message deleted successfully" })
+  } catch (error) {
+    console.error("Error deleting message:", error)
+    return c.json({ success: false, error: "Failed to delete message" }, 500)
   }
 })
 

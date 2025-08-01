@@ -117,6 +117,7 @@ The server will start on port 5007 by default.
 - `DELETE /api/llm/conversations/:id` - Delete conversation by ID (also deletes all related messages)
 - `POST /api/llm/conversations/:conversationId/messages` - Add a message to a conversation
 - `GET /api/llm/conversations/:conversationId/messages` - Get all messages in a conversation with participant info
+- `DELETE /api/llm/conversations/:conversationId/messages/:messageId` - Delete a message by ID
 
 ## Authentication
 
@@ -193,8 +194,14 @@ The LLM Chat API is designed specifically for storing conversation messages betw
    ```
 
 5. Retrieve conversation messages:
+
    ```bash
    GET /api/llm/conversations/1/messages
+   ```
+
+6. Delete a message:
+   ```bash
+   DELETE /api/llm/conversations/1/messages/123
    ```
 
 ## Automatic Participant Creation

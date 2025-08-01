@@ -102,6 +102,14 @@ export const getMessagesByConversationId = async (conversationId: string) => {
     .all()
 }
 
+export const deleteMessageById = async (id: number) => {
+  const result = await db
+    .delete(messages)
+    .where(eq(messages.id, id))
+    .returning()
+  return result
+}
+
 // Refactored function to get messages with participant information including role
 export const getMessagesWithParticipantByConversationId = async (
   conversationId: string
