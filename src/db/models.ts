@@ -70,6 +70,24 @@ export const getAllConversations = async () => {
     .all()
 }
 
+export const deleteConversationById = async (id: string) => {
+  // Delete all messages related to this conversation first
+  await db.delete(messages).where(eq(messages.conversationId, id))
+
+  // Delete all conversation members related to this conversation
+  await db
+    .delete(conversationMembers)
+    .where(eq(conversationMembers.conversationId, id))
+
+  // Finally, delete the conversation itself
+  const result = await db
+    .delete(conversations)
+    .where(eq(conversations.id, id))
+    .returning()
+
+  return result
+}
+
 // Message operations
 export const createMessage = async (message: NewMessage) => {
   return await db.insert(messages).values(message).returning()

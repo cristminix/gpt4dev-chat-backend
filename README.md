@@ -114,6 +114,7 @@ The server will start on port 5007 by default.
 - `POST /api/llm/conversations` - Create a new conversation
 - `GET /api/llm/conversations` - Get all conversations
 - `GET /api/llm/conversations/:id` - Get conversation by ID
+- `DELETE /api/llm/conversations/:id` - Delete conversation by ID (also deletes all related messages)
 - `POST /api/llm/conversations/:conversationId/messages` - Add a message to a conversation
 - `GET /api/llm/conversations/:conversationId/messages` - Get all messages in a conversation with participant info
 
@@ -174,7 +175,13 @@ The LLM Chat API is designed specifically for storing conversation messages betw
    GET /api/llm/conversations
    ```
 
-3. Add messages to the conversation:
+3. Delete a conversation (also deletes all related messages):
+
+   ```bash
+   DELETE /api/llm/conversations/:id
+   ```
+
+4. Add messages to the conversation:
 
    ```bash
    POST /api/llm/conversations/1/messages
@@ -185,7 +192,7 @@ The LLM Chat API is designed specifically for storing conversation messages betw
    }
    ```
 
-4. Retrieve conversation messages:
+5. Retrieve conversation messages:
    ```bash
    GET /api/llm/conversations/1/messages
    ```

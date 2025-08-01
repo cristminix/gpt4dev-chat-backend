@@ -3,6 +3,7 @@ import {
   createConversation,
   getConversationById,
   getAllConversations,
+  deleteConversationById,
   createMessage,
   getMessagesWithParticipantByConversationId,
   createParticipant,
@@ -53,6 +54,40 @@ app.get("/conversations/:id", async (c) => {
   } catch (error) {
     return c.json(
       { success: false, error: "Failed to fetch conversation" },
+      500
+    )
+  }
+})
+
+// Delete conversation by ID
+app.delete("/conversations/:id", async (c) => {
+  try {
+    const id = c.req.param("id")
+
+    // Check if conversation exists
+    const conversation = await getConversationById(id)
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404)
+    }
+
+    // Delete the conversation and all related messages
+    const result = await deleteConversationById(id)
+
+    if (result.length === 0) {
+      return c.json(
+        { success: false, error: "Failed to delete conversation" },
+        500
+      )
+    }
+
+    return c.json({
+      success: true,
+      message: "Conversation deleted successfully",
+    })
+  } catch (error) {
+    console.error("Error deleting conversation:", error)
+    return c.json(
+      { success: false, error: "Failed to delete conversation" },
       500
     )
   }
