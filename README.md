@@ -99,6 +99,8 @@ The server will start on port 5007 by default.
 - `POST /api/conversations` - Create a new conversation (requires authentication)
 - `GET /api/conversations` - Get all conversations (requires authentication)
 - `GET /api/conversations/:id` - Get conversation by ID (requires authentication)
+- `PUT /api/conversations/:id` - Update conversation by ID (requires authentication)
+- `DELETE /api/conversations/:id` - Delete conversation by ID (requires authentication)
 
 ### Message Endpoints
 
@@ -114,6 +116,7 @@ The server will start on port 5007 by default.
 - `POST /api/llm/conversations` - Create a new conversation
 - `GET /api/llm/conversations` - Get all conversations
 - `GET /api/llm/conversations/:id` - Get conversation by ID
+- `PUT /api/llm/conversations/:id` - Update conversation by ID
 - `DELETE /api/llm/conversations/:id` - Delete conversation by ID (also deletes all related messages)
 - `POST /api/llm/conversations/:conversationId/messages` - Add a message to a conversation
 - `GET /api/llm/conversations/:conversationId/messages` - Get all messages in a conversation with participant info
@@ -176,13 +179,22 @@ The LLM Chat API is designed specifically for storing conversation messages betw
    GET /api/llm/conversations
    ```
 
-3. Delete a conversation (also deletes all related messages):
+3. Update a conversation:
+
+   ```bash
+   PUT /api/llm/conversations/:id
+   {
+     "title": "Updated Conversation Title"
+   }
+   ```
+
+4. Delete a conversation (also deletes all related messages):
 
    ```bash
    DELETE /api/llm/conversations/:id
    ```
 
-4. Add messages to the conversation:
+5. Add messages to the conversation:
 
    ```bash
    POST /api/llm/conversations/1/messages
@@ -193,13 +205,13 @@ The LLM Chat API is designed specifically for storing conversation messages betw
    }
    ```
 
-5. Retrieve conversation messages:
+6. Retrieve conversation messages:
 
    ```bash
    GET /api/llm/conversations/1/messages
    ```
 
-6. Delete a message:
+7. Delete a message:
    ```bash
    DELETE /api/llm/conversations/1/messages/123
    ```

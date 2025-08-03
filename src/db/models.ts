@@ -15,6 +15,9 @@ export type NewParticipant = InferInsertModel<typeof participants>
 
 export type Conversation = InferSelectModel<typeof conversations>
 export type NewConversation = InferInsertModel<typeof conversations>
+export type UpdateConversation = Partial<
+  Omit<Conversation, "id" | "createdAt" | "updatedAt">
+>
 
 export type Message = InferSelectModel<typeof messages>
 export type NewMessage = InferInsertModel<typeof messages>
@@ -68,6 +71,25 @@ export const getAllConversations = async () => {
     .from(conversations)
     .orderBy(desc(conversations.updatedAt))
     .all()
+}
+
+export const updateConversation = async (
+  id: string,
+  conversation: UpdateConversation
+) => {
+  // Update the updatedAt timestamp
+  const updatedConversation = {
+    ...conversation,
+    updatedAt: new Date(),
+  }
+
+  const result = await db
+    .update(conversations)
+    .set(updatedConversation)
+    .where(eq(conversations.id, id))
+    .returning()
+
+  return result
 }
 
 export const deleteConversationById = async (id: string) => {

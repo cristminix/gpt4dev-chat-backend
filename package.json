@@ -10,7 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",
-    "db:studio": "drizzle-kit studio --port 3001"
+    "db:studio": "drizzle-kit studio --port 3005"
   },
   "keywords": [
     "hono",

@@ -3,6 +3,7 @@ import {
   createConversation,
   getConversationById,
   getAllConversations,
+  updateConversation,
   deleteConversationById,
   createMessage,
   deleteMessageById,
@@ -55,6 +56,42 @@ app.get("/conversations/:id", async (c) => {
   } catch (error) {
     return c.json(
       { success: false, error: "Failed to fetch conversation" },
+      500
+    )
+  }
+})
+
+// Update conversation by ID
+app.put("/conversations/:id", async (c) => {
+  try {
+    const id = c.req.param("id")
+    const body = await c.req.json()
+
+    // Check if conversation exists
+    const conversation = await getConversationById(id)
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404)
+    }
+
+    // Update the conversation
+    const updatedConversation = await updateConversation(id, body)
+
+    if (updatedConversation.length === 0) {
+      return c.json(
+        { success: false, error: "Failed to update conversation" },
+        500
+      )
+    }
+
+    return c.json({
+      success: true,
+      data: updatedConversation[0],
+      message: "Conversation updated successfully",
+    })
+  } catch (error) {
+    console.error("Error updating conversation:", error)
+    return c.json(
+      { success: false, error: "Failed to update conversation" },
       500
     )
   }
