@@ -19,6 +19,13 @@ export type UpdateConversation = Partial<
   Omit<Conversation, "id" | "createdAt" | "updatedAt">
 >
 
+// Helper type for creating conversations with optional timestamps
+export type CreateConversationInput = Omit<
+  NewConversation,
+  "createdAt" | "updatedAt"
+>
+
+// Message types
 export type Message = InferSelectModel<typeof messages>
 export type NewMessage = InferInsertModel<typeof messages>
 
@@ -47,7 +54,9 @@ export const getParticipantByUsername = async (username: string) => {
 }
 
 // Conversation operations
-export const createConversation = async (conversation: NewConversation) => {
+export const createConversation = async (
+  conversation: CreateConversationInput
+) => {
   // Generate a UUID if one wasn't provided
   const conversationWithId = {
     ...conversation,
@@ -67,7 +76,12 @@ export const getConversationById = async (id: string) => {
 
 export const getAllConversations = async () => {
   return await db
-    .select()
+    .select({
+      id: conversations.id,
+      title: conversations.title,
+      createdAt: conversations.createdAt,
+      updatedAt: conversations.updatedAt,
+    })
     .from(conversations)
     .orderBy(desc(conversations.updatedAt))
     .all()
@@ -87,7 +101,12 @@ export const updateConversation = async (
     .update(conversations)
     .set(updatedConversation)
     .where(eq(conversations.id, id))
-    .returning()
+    .returning({
+      id: conversations.id,
+      title: conversations.title,
+      createdAt: conversations.createdAt,
+      updatedAt: conversations.updatedAt,
+    })
 
   return result
 }
@@ -105,7 +124,12 @@ export const deleteConversationById = async (id: string) => {
   const result = await db
     .delete(conversations)
     .where(eq(conversations.id, id))
-    .returning()
+    .returning({
+      id: conversations.id,
+      title: conversations.title,
+      createdAt: conversations.createdAt,
+      updatedAt: conversations.updatedAt,
+    })
 
   return result
 }
