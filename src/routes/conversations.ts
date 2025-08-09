@@ -1,0 +1,129 @@
+import { Hono } from "hono"
+import {
+  createConversation,
+  getConversationById,
+  getAllConversations,
+  updateConversation,
+  deleteConversationById,
+} from "../db/models"
+
+const app = new Hono()
+
+// Create a new conversation
+app.post("/", async (c) => {
+  try {
+    const body = await c.req.json()
+    const conversation = await createConversation(body)
+    return c.json({ success: true, data: conversation })
+  } catch (error) {
+    return c.json(
+      { success: false, error: "Failed to create conversation" },
+      400
+    )
+  }
+})
+
+// Get all conversations
+app.get("/", async (c) => {
+  try {
+    const conversations = await getAllConversations()
+    return c.json({ success: true, data: conversations })
+  } catch (error) {
+    console.error("Error fetching conversations:", error)
+    return c.json(
+      { success: false, error: "Failed to fetch conversations" },
+      500
+    )
+  }
+})
+
+// Get conversation by ID
+app.get("/:id", async (c) => {
+  try {
+    const id = c.req.param("id")
+    const conversation = await getConversationById(id)
+
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404)
+    }
+
+    return c.json({ success: true, data: conversation })
+  } catch (error) {
+    return c.json(
+      { success: false, error: "Failed to fetch conversation" },
+      500
+    )
+  }
+})
+
+// Update conversation by ID
+app.put("/:id", async (c) => {
+  try {
+    const id = c.req.param("id")
+    const body = await c.req.json()
+
+    // Check if conversation exists
+    const conversation = await getConversationById(id)
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404)
+    }
+
+    // Update the conversation
+    const updatedConversation = await updateConversation(id, body)
+
+    if (updatedConversation.length === 0) {
+      return c.json(
+        { success: false, error: "Failed to update conversation" },
+        500
+      )
+    }
+
+    return c.json({
+      success: true,
+      data: updatedConversation[0],
+      message: "Conversation updated successfully",
+    })
+  } catch (error) {
+    console.error("Error updating conversation:", error)
+    return c.json(
+      { success: false, error: "Failed to update conversation" },
+      500
+    )
+  }
+})
+
+// Delete conversation by ID
+app.delete("/:id", async (c) => {
+  try {
+    const id = c.req.param("id")
+
+    // Check if conversation exists
+    const conversation = await getConversationById(id)
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404)
+    }
+
+    // Delete the conversation and all related messages
+    const result = await deleteConversationById(id)
+
+    if (result.length === 0) {
+      return c.json(
+        { success: false, error: "Failed to delete conversation" },
+        500
+      )
+    }
+
+    return c.json({
+      success: true,
+      message: "Conversation deleted successfully",
+    })
+  } catch (error) {
+    console.error("Error deleting conversation:", error)
+    return c.json(
+      { success: false, error: "Failed to delete conversation" },
+      500
+    )
+  }
+})
+
+export default app

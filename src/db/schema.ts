@@ -75,3 +75,28 @@ export const conversationMembers = sqliteTable(
     pk: primaryKey({ columns: [table.conversationId, table.participantId] }),
   })
 )
+
+export const messageGroups = sqliteTable("message_groups", {
+  id: text("id").primaryKey(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+})
+
+export const messageGroupMessages = sqliteTable(
+  "message_group_messages",
+  {
+    messageId: text("message_id")
+      .notNull()
+      .references(() => messages.id),
+    messageGroupId: text("message_group_id")
+      .notNull()
+      .references(() => messageGroups.id),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.messageId, table.messageGroupId] }),
+  })
+)
