@@ -9,8 +9,20 @@ CREATE TABLE `conversation_members` (
 CREATE TABLE `conversations` (
 	`id` text PRIMARY KEY NOT NULL,
 	`title` text NOT NULL,
-	`created_at` integer DEFAULT '"2025-08-09T06:13:26.370Z"' NOT NULL,
-	`updated_at` integer DEFAULT '"2025-08-09T06:13:26.370Z"' NOT NULL
+	`system_message` text DEFAULT '',
+	`enable_system_message` numeric DEFAULT '1',
+	`folder_id` text,
+	`created_at` integer DEFAULT '"2025-08-09T11:00:57.589Z"' NOT NULL,
+	`updated_at` integer DEFAULT '"2025-08-09T11:00:57.589Z"' NOT NULL,
+	FOREIGN KEY (`folder_id`) REFERENCES `folders`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `folders` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`description` text,
+	`created_at` integer DEFAULT '"2025-08-09T11:00:57.589Z"' NOT NULL,
+	`updated_at` integer DEFAULT '"2025-08-09T11:00:57.589Z"' NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `messages` (
@@ -20,7 +32,8 @@ CREATE TABLE `messages` (
 	`content` text NOT NULL,
 	`parent_id` text,
 	`group_id` text,
-	`created_at` integer DEFAULT '"2025-08-09T06:13:26.370Z"' NOT NULL,
+	`collapsed` numeric DEFAULT '0',
+	`created_at` integer DEFAULT '"2025-08-09T11:00:57.589Z"' NOT NULL,
 	FOREIGN KEY (`conversation_id`) REFERENCES `conversations`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`participant_id`) REFERENCES `participants`(`id`) ON UPDATE no action ON DELETE no action
 );
@@ -29,8 +42,8 @@ CREATE TABLE `participants` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`username` text NOT NULL,
 	`role` text DEFAULT 'member' NOT NULL,
-	`created_at` integer DEFAULT '"2025-08-09T06:13:26.370Z"' NOT NULL,
-	`updated_at` integer DEFAULT '"2025-08-09T06:13:26.370Z"' NOT NULL
+	`created_at` integer DEFAULT '"2025-08-09T11:00:57.588Z"' NOT NULL,
+	`updated_at` integer DEFAULT '"2025-08-09T11:00:57.588Z"' NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `participants_username_unique` ON `participants` (`username`);

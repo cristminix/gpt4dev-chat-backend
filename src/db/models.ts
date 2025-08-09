@@ -5,6 +5,7 @@ import {
   conversations,
   messages,
   conversationMembers,
+  folders,
 } from "./schema"
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm"
 import { v4 as uuidv4 } from "uuid"
@@ -19,18 +20,17 @@ export type UpdateConversation = Partial<
   Omit<Conversation, "id" | "createdAt" | "updatedAt">
 >
 
-// Helper type for creating conversations with optional timestamps
-export type CreateConversationInput = Omit<
-  NewConversation,
-  "createdAt" | "updatedAt"
->
-
-// Message types
 export type Message = InferSelectModel<typeof messages>
 export type NewMessage = InferInsertModel<typeof messages>
 
 export type ConversationMember = InferSelectModel<typeof conversationMembers>
 export type NewConversationMember = InferInsertModel<typeof conversationMembers>
+
+export type Folder = InferSelectModel<typeof folders>
+export type NewFolder = InferInsertModel<typeof folders>
+export type UpdateFolder = Partial<
+  Omit<Folder, "id" | "createdAt" | "updatedAt">
+>
 
 // Participant operations
 export const createParticipant = async (participant: NewParticipant) => {
@@ -54,9 +54,7 @@ export const getParticipantByUsername = async (username: string) => {
 }
 
 // Conversation operations
-export const createConversation = async (
-  conversation: CreateConversationInput
-) => {
+export const createConversation = async (conversation: NewConversation) => {
   // Generate a UUID if one wasn't provided
   const conversationWithId = {
     ...conversation,
@@ -169,6 +167,7 @@ export const getMessagesWithParticipantByConversationId = async (
       createdAt: messages.createdAt,
       parentId: messages.parentId,
       groupId: messages.groupId,
+      collapsed: messages.collapsed,
     })
     .from(messages)
     .innerJoin(participants, eq(messages.participantId, participants.id))
@@ -210,4 +209,49 @@ export const isConversationMember = async (
     )
     .get()
   return !!member
+}
+
+// Folder operations
+export const createFolder = async (folder: NewFolder) => {
+  // Generate a UUID if one wasn't provided
+  const folderWithId = {
+    ...folder,
+    id: folder.id || uuidv4(),
+  }
+
+  return await db.insert(folders).values(folderWithId).returning()
+}
+
+export const getFolderById = async (id: string) => {
+  return await db.select().from(folders).where(eq(folders.id, id)).get()
+}
+
+export const getAllFolders = async () => {
+  return await db.select().from(folders).orderBy(desc(folders.updatedAt)).all()
+}
+
+export const updateFolder = async (id: string, folder: UpdateFolder) => {
+  // Update the updatedAt timestamp
+  const updatedFolder = {
+    ...folder,
+    updatedAt: new Date(),
+  }
+
+  const result = await db
+    .update(folders)
+    .set(updatedFolder)
+    .where(eq(folders.id, id))
+    .returning()
+
+  return result
+}
+
+export const deleteFolderById = async (id: string) => {
+  // First, delete all conversations in this folder
+  await db.delete(conversations).where(eq(conversations.folderId, id))
+
+  // Then delete the folder itself
+  const result = await db.delete(folders).where(eq(folders.id, id)).returning()
+
+  return result
 }

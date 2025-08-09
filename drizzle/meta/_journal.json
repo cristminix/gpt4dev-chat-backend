@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1754720006375,
-      "tag": "0000_smooth_squirrel_girl",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1754720636032,
-      "tag": "0001_sour_genesis",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1754721329574,
-      "tag": "0002_dashing_inhumans",
+      "when": 1754737257594,
+      "tag": "0000_stormy_proemial_gods",
       "breakpoints": true
     }
   ]

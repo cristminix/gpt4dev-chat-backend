@@ -10,9 +10,106 @@ import {
   getMessagesWithParticipantByConversationId,
   createParticipant,
   getParticipantByUsername,
+  createFolder,
+  getFolderById,
+  getAllFolders,
+  updateFolder,
+  deleteFolderById,
 } from "../db/models"
 
 const app = new Hono()
+
+// Folder routes
+app.post("/folders", async (c) => {
+  try {
+    const body = await c.req.json()
+    const folder = await createFolder(body)
+    return c.json({ success: true, data: folder })
+  } catch (error) {
+    return c.json({ success: false, error: "Failed to create folder" }, 400)
+  }
+})
+
+app.get("/folders", async (c) => {
+  try {
+    const folders = await getAllFolders()
+    return c.json({ success: true, data: folders })
+  } catch (error) {
+    console.error("Error fetching folders:", error)
+    return c.json({ success: false, error: "Failed to fetch folders" }, 500)
+  }
+})
+
+app.get("/folders/:id", async (c) => {
+  try {
+    const id = c.req.param("id")
+    const folder = await getFolderById(id)
+
+    if (!folder) {
+      return c.json({ success: false, error: "Folder not found" }, 404)
+    }
+
+    return c.json({ success: true, data: folder })
+  } catch (error) {
+    return c.json({ success: false, error: "Failed to fetch folder" }, 500)
+  }
+})
+
+app.put("/folders/:id", async (c) => {
+  try {
+    const id = c.req.param("id")
+    const body = await c.req.json()
+
+    // Check if folder exists
+    const folder = await getFolderById(id)
+    if (!folder) {
+      return c.json({ success: false, error: "Folder not found" }, 404)
+    }
+
+    // Update the folder
+    const updatedFolder = await updateFolder(id, body)
+
+    if (updatedFolder.length === 0) {
+      return c.json({ success: false, error: "Failed to update folder" }, 500)
+    }
+
+    return c.json({
+      success: true,
+      data: updatedFolder[0],
+      message: "Folder updated successfully",
+    })
+  } catch (error) {
+    console.error("Error updating folder:", error)
+    return c.json({ success: false, error: "Failed to update folder" }, 500)
+  }
+})
+
+app.delete("/folders/:id", async (c) => {
+  try {
+    const id = c.req.param("id")
+
+    // Check if folder exists
+    const folder = await getFolderById(id)
+    if (!folder) {
+      return c.json({ success: false, error: "Folder not found" }, 404)
+    }
+
+    // Delete the folder and all related conversations
+    const result = await deleteFolderById(id)
+
+    if (result.length === 0) {
+      return c.json({ success: false, error: "Failed to delete folder" }, 500)
+    }
+
+    return c.json({
+      success: true,
+      message: "Folder deleted successfully",
+    })
+  } catch (error) {
+    console.error("Error deleting folder:", error)
+    return c.json({ success: false, error: "Failed to delete folder" }, 500)
+  }
+})
 
 // Create a new conversation
 app.post("/conversations", async (c) => {
@@ -145,15 +242,15 @@ app.post("/conversations/:conversationId/messages", async (c) => {
 
     // Create or get participant (LLM or user)
     let participant
-    if (body.participantUsername) {
+    if (body.username) {
       // Check if participant with this username already exists
-      participant = await getParticipantByUsername(body.participantUsername)
+      participant = await getParticipantByUsername(body.username)
 
       // If not, create a new participant
       if (!participant) {
         const participantData = {
-          username: body.participantUsername,
-          role: body.participantRole || "user",
+          username: body.username,
+          role: body.role || "user",
         }
         console.log(`Create participant`, participantData)
         const [newParticipant] = await createParticipant(participantData)
@@ -162,8 +259,8 @@ app.post("/conversations/:conversationId/messages", async (c) => {
     } else {
       // Create a new participant for this message
       const participantData = {
-        username: body.participantName || `participant_${Date.now()}`,
-        role: body.participantRole || "user",
+        username: body.username || `participant_${Date.now()}`,
+        role: body.role || "user",
       }
       const [newParticipant] = await createParticipant(participantData)
       participant = newParticipant
@@ -173,9 +270,12 @@ app.post("/conversations/:conversationId/messages", async (c) => {
     // await new Promise((resolve) => setTimeout(resolve, 512)) // Simulate async operation
     // Create the message
     const message = await createMessage({
+      id: body.id || Math.floor(Math.random() * 1000000).toString(), // Generate a random ID if one wasn't provided
       content: body.content,
       conversationId,
       participantId: participant.id,
+      groupId: body.groupId,
+      parentId: body.parentId,
     })
 
     return c.json({ success: true, data: message })
@@ -210,7 +310,7 @@ app.get("/conversations/:conversationId/messages", async (c) => {
 // Delete a message by ID
 app.delete("/conversations/:conversationId/messages/:messageId", async (c) => {
   try {
-    const messageId = parseInt(c.req.param("messageId"))
+    const messageId = c.req.param("messageId")
 
     // Check if message exists
     // Note: In a production environment, you might want to verify that the message
