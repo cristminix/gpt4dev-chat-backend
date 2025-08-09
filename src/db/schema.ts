@@ -1,4 +1,10 @@
-import { sqliteTable, text, integer, primaryKey } from "drizzle-orm/sqlite-core"
+import {
+  sqliteTable,
+  text,
+  integer,
+  primaryKey,
+  numeric,
+} from "drizzle-orm/sqlite-core"
 
 export const participants = sqliteTable("participants", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -12,9 +18,24 @@ export const participants = sqliteTable("participants", {
     .default(new Date()),
 })
 
+export const folders = sqliteTable("folders", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+})
+
 export const conversations = sqliteTable("conversations", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
+  systemMessage: text("system_message").default(""),
+  enableSystemMessage: numeric("enable_system_message").default("1"),
+  folderId: text("folder_id").references(() => folders.id),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(new Date()),
@@ -24,7 +45,7 @@ export const conversations = sqliteTable("conversations", {
 })
 
 export const messages = sqliteTable("messages", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+  id: text("id").primaryKey(),
   conversationId: text("conversation_id")
     .notNull()
     .references(() => conversations.id),
@@ -32,6 +53,9 @@ export const messages = sqliteTable("messages", {
     .notNull()
     .references(() => participants.id),
   content: text("content").notNull(),
+  parentId: text("parent_id"),
+  groupId: text("group_id"),
+  collapsed: numeric("collapsed").default("0"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(new Date()),

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "871df748-81f3-418f-8011-f2e91c6b0745",
+  "id": "634110fa-4249-4c67-9507-559b6711256b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "conversation_members": {
@@ -72,8 +72,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "name": {
-          "name": "name",
+        "title": {
+          "name": "title",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -85,7 +85,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'\"2025-07-31T04:54:08.466Z\"'"
+          "default": "'\"2025-08-09T06:13:26.370Z\"'"
         },
         "updated_at": {
           "name": "updated_at",
@@ -93,7 +93,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'\"2025-07-31T04:54:08.466Z\"'"
+          "default": "'\"2025-08-09T06:13:26.370Z\"'"
         }
       },
       "indexes": {},
@@ -106,10 +106,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         },
         "conversation_id": {
           "name": "conversation_id",
@@ -132,13 +132,27 @@
           "notNull": true,
           "autoincrement": false
         },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "group_id": {
+          "name": "group_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'\"2025-07-31T04:54:08.466Z\"'"
+          "default": "'\"2025-08-09T06:13:26.370Z\"'"
         }
       },
       "indexes": {},
@@ -204,7 +218,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'\"2025-07-31T04:54:08.465Z\"'"
+          "default": "'\"2025-08-09T06:13:26.370Z\"'"
         },
         "updated_at": {
           "name": "updated_at",
@@ -212,7 +226,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'\"2025-07-31T04:54:08.465Z\"'"
+          "default": "'\"2025-08-09T06:13:26.370Z\"'"
         }
       },
       "indexes": {

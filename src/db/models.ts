@@ -148,7 +148,7 @@ export const getMessagesByConversationId = async (conversationId: string) => {
     .all()
 }
 
-export const deleteMessageById = async (id: number) => {
+export const deleteMessageById = async (id: string) => {
   const result = await db
     .delete(messages)
     .where(eq(messages.id, id))
@@ -167,6 +167,8 @@ export const getMessagesWithParticipantByConversationId = async (
       username: participants.username,
       role: participants.role,
       createdAt: messages.createdAt,
+      parentId: messages.parentId,
+      groupId: messages.groupId,
     })
     .from(messages)
     .innerJoin(participants, eq(messages.participantId, participants.id))
