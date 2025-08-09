@@ -6,11 +6,14 @@ A simple chat application backend built with Hono, SQLite, and Drizzle ORM.
 
 - Participant management (registration, retrieval)
 - Conversation management (creation, listing) with UUID primary keys
-- Message sending and retrieval
+- Message sending and retrieval with automatic participant creation
 - Conversation membership management
-- LLM Chat API for storing conversation messages
+- LLM Chat API for storing conversation messages with advanced organization features
+- Folder management for organizing conversations
+- Message group management for organizing related messages
+- Message group message management for linking messages to groups
 - Automatic participant creation by username
-- Authentication middleware
+- Authentication middleware for secure chat endpoints
 - RESTful API design
 
 ## Technologies Used
@@ -33,8 +36,13 @@ A simple chat application backend built with Hono, SQLite, and Drizzle ORM.
 │   │   ├── migrate.ts     # Database migration script
 │   │   └── seed.ts        # Database seed data
 │   ├── routes/
-│   │   ├── chat.ts        # Chat API routes
-│   │   └── llm-chat.ts    # LLM Chat API routes
+│   │   ├── chat.ts                # Chat API routes (require authentication)
+│   │   ├── llm-chat.ts            # LLM Chat API routes (no authentication)
+│   │   ├── folders.ts             # Folder management routes
+│   │   ├── conversations.ts       # Conversation management routes
+│   │   ├── messages.ts            # Message management routes
+│   │   ├── message-groups.ts      # Message group management routes
+│   │   └── message-group-messages.ts  # Message group message management routes
 │   ├── middleware/
 │   │   ├── auth.ts        # Authentication middleware
 │   │   └── logger.ts      # Request logging middleware
@@ -89,38 +97,67 @@ The server will start on port 5007 by default.
 
 ## API Endpoints
 
-### Participant Endpoints
+### Chat API Endpoints (Require Authentication)
+
+#### Participant Endpoints
 
 - `POST /api/participants` - Create a new participant
 - `GET /api/participants/:id` - Get participant by ID
 
-### Conversation Endpoints
+#### Conversation Endpoints
 
-- `POST /api/conversations` - Create a new conversation (requires authentication)
-- `GET /api/conversations` - Get all conversations (requires authentication)
-- `GET /api/conversations/:id` - Get conversation by ID (requires authentication)
-- `PUT /api/conversations/:id` - Update conversation by ID (requires authentication)
-- `DELETE /api/conversations/:id` - Delete conversation by ID (requires authentication)
+- `POST /api/conversations` - Create a new conversation
+- `GET /api/conversations` - Get all conversations
+- `GET /api/conversations/:id` - Get conversation by ID
+- `PUT /api/conversations/:id` - Update conversation by ID
+- `DELETE /api/conversations/:id` - Delete conversation by ID
 
-### Message Endpoints
+#### Message Endpoints
 
-- `POST /api/conversations/:conversationId/messages` - Send a message to a conversation (requires authentication)
-- `GET /api/conversations/:conversationId/messages` - Get messages from a conversation (requires authentication)
+- `POST /api/conversations/:conversationId/messages` - Send a message to a conversation
+- `GET /api/conversations/:conversationId/messages` - Get messages from a conversation
 
-### Conversation Member Endpoints
+#### Conversation Member Endpoints
 
-- `POST /api/conversations/:conversationId/members` - Add a member to a conversation (requires authentication)
+- `POST /api/conversations/:conversationId/members` - Add a member to a conversation
 
-### LLM Chat Endpoints
+### LLM Chat API Endpoints (No Authentication Required)
+
+#### Folder Endpoints
+
+- `POST /api/llm/folders` - Create a new folder
+- `GET /api/llm/folders` - Get all folders
+- `GET /api/llm/folders/:id` - Get folder by ID
+- `PUT /api/llm/folders/:id` - Update folder by ID
+- `DELETE /api/llm/folders/:id` - Delete folder by ID (also deletes all related conversations)
+
+#### Conversation Endpoints
 
 - `POST /api/llm/conversations` - Create a new conversation
 - `GET /api/llm/conversations` - Get all conversations
 - `GET /api/llm/conversations/:id` - Get conversation by ID
 - `PUT /api/llm/conversations/:id` - Update conversation by ID
 - `DELETE /api/llm/conversations/:id` - Delete conversation by ID (also deletes all related messages)
-- `POST /api/llm/conversations/:conversationId/messages` - Add a message to a conversation
-- `GET /api/llm/conversations/:conversationId/messages` - Get all messages in a conversation with participant info
-- `DELETE /api/llm/conversations/:conversationId/messages/:messageId` - Delete a message by ID
+
+#### Message Endpoints
+
+- `POST /api/llm/messages/conversations/:conversationId` - Add a message to a conversation
+- `GET /api/llm/messages/conversations/:conversationId` - Get all messages in a conversation with participant info
+- `DELETE /api/llm/messages/conversations/:conversationId/:messageId` - Delete a message by ID
+
+#### Message Group Endpoints
+
+- `POST /api/llm/message-groups` - Create a new message group
+- `GET /api/llm/message-groups` - Get all message groups
+- `GET /api/llm/message-groups/:id` - Get message group by ID
+- `PUT /api/llm/message-groups/:id` - Update message group by ID
+- `DELETE /api/llm/message-groups/:id` - Delete message group by ID (also deletes all related message group messages)
+
+#### Message Group Message Endpoints
+
+- `POST /api/llm/message-group-messages/:messageGroupId` - Add a message to a message group
+- `GET /api/llm/message-group-messages/:messageGroupId` - Get all messages in a message group
+- `DELETE /api/llm/message-group-messages/:messageGroupId/:messageId` - Remove a message from a message group
 
 ## Authentication
 
@@ -162,7 +199,9 @@ Note: The seeding script will only work with an empty database. If you already h
 
 ## LLM Chat API Usage
 
-The LLM Chat API is designed specifically for storing conversation messages between LLMs and users:
+The LLM Chat API is designed specifically for storing conversation messages between LLMs and users. It has a more complex structure with support for folders, message groups, and advanced message management.
+
+### Basic Conversation Management
 
 1. Create a conversation:
 
@@ -194,37 +233,140 @@ The LLM Chat API is designed specifically for storing conversation messages betw
    DELETE /api/llm/conversations/:id
    ```
 
-5. Add messages to the conversation:
+### Message Management
+
+1. Add messages to the conversation:
 
    ```bash
-   POST /api/llm/conversations/1/messages
+   POST /api/llm/messages/conversations/1
    {
      "content": "Hello, how can I help you?",
-     "participantUsername": "Assistant",
-     "participantRole": "assistant"
+     "username": "Assistant",
+     "role": "assistant"
    }
    ```
 
-6. Retrieve conversation messages:
+2. Retrieve conversation messages:
 
    ```bash
-   GET /api/llm/conversations/1/messages
+   GET /api/llm/messages/conversations/1
    ```
 
-7. Delete a message:
+3. Delete a message:
    ```bash
-   DELETE /api/llm/conversations/1/messages/123
+   DELETE /api/llm/messages/conversations/1/123
+   ```
+
+### Folder Management
+
+1. Create a folder to organize conversations:
+
+   ```bash
+   POST /api/llm/folders
+   {
+     "name": "Project Alpha",
+     "description": "Conversations related to Project Alpha"
+   }
+   ```
+
+2. Get all folders:
+
+   ```bash
+   GET /api/llm/folders
+   ```
+
+3. Update a folder:
+
+   ```bash
+   PUT /api/llm/folders/:id
+   {
+     "name": "Project Beta",
+     "description": "Conversations related to Project Beta"
+   }
+   ```
+
+4. Delete a folder (also deletes all related conversations):
+
+   ```bash
+   DELETE /api/llm/folders/:id
+   ```
+
+### Message Group Management
+
+1. Create a message group to organize related messages:
+
+   ```bash
+   POST /api/llm/message-groups
+   {
+     "name": "Technical Discussion",
+     "description": "Messages related to technical topics"
+   }
+   ```
+
+2. Get all message groups:
+
+   ```bash
+   GET /api/llm/message-groups
+   ```
+
+3. Update a message group:
+
+   ```bash
+   PUT /api/llm/message-groups/:id
+   {
+     "name": "General Discussion",
+     "description": "Messages related to general topics"
+   }
+   ```
+
+4. Delete a message group (also deletes all related message group messages):
+
+   ```bash
+   DELETE /api/llm/message-groups/:id
+   ```
+
+### Message Group Message Management
+
+1. Add a message to a message group:
+
+   ```bash
+   POST /api/llm/message-group-messages/:messageGroupId
+   {
+     "messageId": "123"
+   }
+   ```
+
+2. Get all messages in a message group:
+
+   ```bash
+   GET /api/llm/message-group-messages/:messageGroupId
+   ```
+
+3. Remove a message from a message group:
+   ```bash
+   DELETE /api/llm/message-group-messages/:messageGroupId/:messageId
    ```
 
 ## Automatic Participant Creation
 
-The LLM Chat API now supports automatic participant creation by username. When adding a message to a conversation, if you provide a `participantUsername` field:
+The LLM Chat API now supports automatic participant creation by username. When adding a message to a conversation, if you provide a `username` field:
 
 1. The system will first check if a participant with that username already exists
 2. If the participant exists, it will be used for the message
 3. If the participant doesn't exist, a new one will be created automatically with the provided username and role
 
 This eliminates the need to manually create participants before sending messages.
+
+To add a message with automatic participant creation:
+
+```bash
+POST /api/llm/messages/conversations/:conversationId
+{
+  "content": "Hello, how can I help you?",
+  "username": "Assistant",
+  "role": "assistant"
+}
+```
 
 ## UUID Primary Keys
 

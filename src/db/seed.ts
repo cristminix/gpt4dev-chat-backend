@@ -4,6 +4,9 @@ import {
   createConversation,
   createMessage,
   addConversationMember,
+  createFolder,
+  createMessageGroup,
+  createMessageGroupMessage,
 } from "./models"
 import { v4 as uuidv4 } from "uuid"
 
@@ -48,11 +51,32 @@ async function seed() {
       participant4,
     ])
 
+    // Create folders
+    console.log("Creating folders...")
+    const folder1Result = await createFolder({
+      id: uuidv4(),
+      name: "General Chats",
+      description: "General conversation folders",
+    })
+    const folder1 = folder1Result[0]
+    if (!folder1) throw new Error("Failed to create folder1")
+
+    const folder2Result = await createFolder({
+      id: uuidv4(),
+      name: "Support Chats",
+      description: "Technical support conversation folders",
+    })
+    const folder2 = folder2Result[0]
+    if (!folder2) throw new Error("Failed to create folder2")
+
+    console.log("Folders created:", [folder1, folder2])
+
     // Create conversations
     console.log("Creating conversations...")
     const conversation1Result = await createConversation({
       id: uuidv4(),
       title: "General Discussion",
+      folderId: folder1.id,
     })
     const conversation1 = conversation1Result[0]
     if (!conversation1) throw new Error("Failed to create conversation1")
@@ -60,6 +84,7 @@ async function seed() {
     const conversation2Result = await createConversation({
       id: uuidv4(),
       title: "Technical Support",
+      folderId: folder2.id,
     })
     const conversation2 = conversation2Result[0]
     if (!conversation2) throw new Error("Failed to create conversation2")
@@ -75,6 +100,32 @@ async function seed() {
       conversation1,
       conversation2,
       conversation3,
+    ])
+
+    // Create message groups
+    console.log("Creating message groups...")
+    const messageGroup1Result = await createMessageGroup({
+      id: uuidv4(),
+    })
+    const messageGroup1 = messageGroup1Result[0]
+    if (!messageGroup1) throw new Error("Failed to create messageGroup1")
+
+    const messageGroup2Result = await createMessageGroup({
+      id: uuidv4(),
+    })
+    const messageGroup2 = messageGroup2Result[0]
+    if (!messageGroup2) throw new Error("Failed to create messageGroup2")
+
+    const messageGroup3Result = await createMessageGroup({
+      id: uuidv4(),
+    })
+    const messageGroup3 = messageGroup3Result[0]
+    if (!messageGroup3) throw new Error("Failed to create messageGroup3")
+
+    console.log("Message groups created:", [
+      messageGroup1,
+      messageGroup2,
+      messageGroup3,
     ])
 
     // Add participants to conversations
@@ -113,71 +164,119 @@ async function seed() {
 
     // Create messages for conversation 1
     console.log("Creating messages for conversation 1...")
-    await createMessage({
+    const message1_1Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation1.id,
       participantId: participant1.id,
       content: "Hello everyone!",
     })
+    const message1_1 = message1_1Result[0]
+    if (!message1_1) throw new Error("Failed to create message1_1")
 
-    await createMessage({
+    const message1_2Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation1.id,
       participantId: participant2.id,
       content: "Hi Alice! How are you doing?",
     })
+    const message1_2 = message1_2Result[0]
+    if (!message1_2) throw new Error("Failed to create message1_2")
 
-    await createMessage({
+    const message1_3Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation1.id,
       participantId: participant1.id,
       content: "I'm doing great, thanks for asking!",
     })
+    const message1_3 = message1_3Result[0]
+    if (!message1_3) throw new Error("Failed to create message1_3")
 
     // Create messages for conversation 2
     console.log("Creating messages for conversation 2...")
-    await createMessage({
+    const message2_1Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation2.id,
       participantId: participant1.id,
       content: "I need help with my account.",
     })
+    const message2_1 = message2_1Result[0]
+    if (!message2_1) throw new Error("Failed to create message2_1")
 
-    await createMessage({
+    const message2_2Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation2.id,
       participantId: participant3.id,
       content: "Sure, what seems to be the problem?",
     })
+    const message2_2 = message2_2Result[0]
+    if (!message2_2) throw new Error("Failed to create message2_2")
 
-    await createMessage({
+    const message2_3Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation2.id,
       participantId: participant1.id,
       content: "I can't access my profile settings.",
     })
+    const message2_3 = message2_3Result[0]
+    if (!message2_3) throw new Error("Failed to create message2_3")
 
     // Create messages for conversation 3 (AI chat testing)
     console.log("Creating messages for conversation 3...")
-    await createMessage({
+    const message3_1Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation3.id,
       participantId: participant1.id,
       content: "Hello AI assistant, can you help me with something?",
     })
+    const message3_1 = message3_1Result[0]
+    if (!message3_1) throw new Error("Failed to create message3_1")
 
-    await createMessage({
+    const message3_2Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation3.id,
       participantId: participant4.id,
       content: "Of course! What can I help you with today?",
     })
+    const message3_2 = message3_2Result[0]
+    if (!message3_2) throw new Error("Failed to create message3_2")
 
-    await createMessage({
+    const message3_3Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation3.id,
       participantId: participant1.id,
       content: "I'm testing the chat functionality. How are you?",
     })
+    const message3_3 = message3_3Result[0]
+    if (!message3_3) throw new Error("Failed to create message3_3")
 
-    await createMessage({
+    const message3_4Result = await createMessage({
+      id: uuidv4(),
       conversationId: conversation3.id,
       participantId: participant4.id,
       content: "I'm functioning properly, thank you for asking!",
     })
+    const message3_4 = message3_4Result[0]
+    if (!message3_4) throw new Error("Failed to create message3_4")
 
-    console.log("Messages created successfully")
+    // Create message group messages
+    console.log("Creating message group messages...")
+    // Link first message of each conversation to corresponding message group
+    await createMessageGroupMessage({
+      messageId: message1_1.id,
+      messageGroupId: messageGroup1.id,
+    })
+
+    await createMessageGroupMessage({
+      messageId: message2_1.id,
+      messageGroupId: messageGroup2.id,
+    })
+
+    await createMessageGroupMessage({
+      messageId: message3_1.id,
+      messageGroupId: messageGroup3.id,
+    })
+
+    console.log("Message group messages created successfully")
     console.log("Database seeding completed!")
   } catch (error) {
     console.error("Error seeding database:", error)
