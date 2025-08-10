@@ -3,6 +3,7 @@ import {
   createMessageGroup,
   getMessageGroupById,
   getAllMessageGroups,
+  getMessageGroupsByConversationId,
   updateMessageGroup,
   deleteMessageGroupById,
 } from "../db/models"
@@ -32,6 +33,20 @@ app.get("/", async (c) => {
     console.error("Error fetching message groups:", error)
     return c.json(
       { success: false, error: "Failed to fetch message groups" },
+      500
+    )
+  }
+})
+
+app.get("/conversation/:conversationId", async (c) => {
+  try {
+    const conversationId = c.req.param("conversationId")
+    const messageGroups = await getMessageGroupsByConversationId(conversationId)
+    return c.json({ success: true, data: messageGroups })
+  } catch (error) {
+    console.error("Error fetching message groups by conversation ID:", error)
+    return c.json(
+      { success: false, error: "Failed to fetch message groups by conversation ID" },
       500
     )
   }

@@ -78,6 +78,9 @@ export const conversationMembers = sqliteTable(
 
 export const messageGroups = sqliteTable("message_groups", {
   id: text("id").primaryKey(),
+  conversationId: text("conversation_id")
+    .notNull()
+    .references(() => conversations.id),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(new Date()),

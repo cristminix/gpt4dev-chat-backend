@@ -31,6 +31,14 @@ export const getAllMessageGroups = async () => {
   return await db.select().from(messageGroups).all()
 }
 
+export const getMessageGroupsByConversationId = async (conversationId: string) => {
+  return await db
+    .select()
+    .from(messageGroups)
+    .where(eq(messageGroups.conversationId, conversationId))
+    .all()
+}
+
 export const updateMessageGroup = async (
   id: string,
   messageGroup: Partial<MessageGroup>
