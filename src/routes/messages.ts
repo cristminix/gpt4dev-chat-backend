@@ -5,6 +5,7 @@ import {
   getMessagesWithParticipantByConversationId,
   getParticipantByUsername,
   createParticipant,
+  createMessageGroupMessage,
 } from "../db/models"
 
 const app = new Hono()
@@ -44,16 +45,32 @@ app.post("/conversations/:conversationId", async (c) => {
     console.log(`Using participant`, participant)
     // await new Promise((resolve) => setTimeout(resolve, 512)) // Simulate async operation
     // Create the message
-    const message = await createMessage({
+    const messageData = {
       id: body.id?.toString() || Math.floor(Math.random() * 1000000).toString(), // Use provided ID or generate a random one
       content: body.content,
       conversationId,
       participantId: participant.id,
-      groupId: body.groupId,
       parentId: body.parentId,
-    })
+    }
 
-    return c.json({ success: true, data: message })
+    // Remove groupId from messageData as it's not a direct column in messages table
+    const [message] = await createMessage(messageData)
+
+    // If groupId is provided, create an entry in message_group_messages
+    if (body.groupId && message) {
+      await createMessageGroupMessage({
+        messageId: message.id,
+        messageGroupId: body.groupId,
+      })
+    }
+
+    // Prepare the response data
+    const responseData = {
+      ...message,
+      groupId: body.groupId || null, // Include groupId in the response
+    }
+
+    return c.json({ success: true, data: [responseData] })
   } catch (error) {
     console.error("Error creating message:", error)
     return c.json({ success: false, error: "Failed to create message" }, 400)

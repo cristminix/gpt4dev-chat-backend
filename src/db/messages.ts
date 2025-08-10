@@ -1,6 +1,6 @@
 import { eq, desc, asc } from "drizzle-orm"
 import { db } from "."
-import { messages, participants } from "./schema"
+import { messages, participants, messageGroupMessages, messageGroups } from "./schema"
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm"
 
 // Types
@@ -43,11 +43,12 @@ export const getMessagesWithParticipantByConversationId = async (
       role: participants.role,
       createdAt: messages.createdAt,
       parentId: messages.parentId,
-      groupId: messages.groupId,
       collapsed: messages.collapsed,
+      groupId: messageGroupMessages.messageGroupId,
     })
     .from(messages)
     .innerJoin(participants, eq(messages.participantId, participants.id))
+    .leftJoin(messageGroupMessages, eq(messages.id, messageGroupMessages.messageId))
     .where(eq(messages.conversationId, conversationId))
     .orderBy(asc(messages.createdAt))
     .all()
