@@ -5,6 +5,11 @@ import {
   getAllConversations,
   updateConversation,
   deleteConversationById,
+  getMessageGroupsByConversationId,
+  getMessageGroupMessagesByGroupId,
+  deleteMessageById,
+  deleteMessageGroupMessage,
+  deleteMessageGroupById,
 } from "../db/models"
 
 const app = new Hono()
@@ -51,6 +56,33 @@ app.get("/:id", async (c) => {
   } catch (error) {
     return c.json(
       { success: false, error: "Failed to fetch conversation" },
+      500
+    )
+  }
+})
+
+// Get message groups by conversation ID
+app.get("/:id/message-groups", async (c) => {
+  try {
+    const id = c.req.param("id")
+
+    // Check if conversation exists
+    const conversation = await getConversationById(id)
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404)
+    }
+
+    // Get message groups by conversation ID
+    const messageGroups = await getMessageGroupsByConversationId(id)
+
+    return c.json({
+      success: true,
+      data: messageGroups
+    })
+  } catch (error) {
+    console.error("Error fetching message groups:", error)
+    return c.json(
+      { success: false, error: "Failed to fetch message groups" },
       500
     )
   }
@@ -103,6 +135,22 @@ app.delete("/:id", async (c) => {
       return c.json({ success: false, error: "Conversation not found" }, 404)
     }
 
+    // Get message groups by conversation
+    const messageGroups = await getMessageGroupsByConversationId(id)
+    for (const group of messageGroups) {
+      const groupId = group.id
+      const messageGroupMessages = await getMessageGroupMessagesByGroupId(groupId)
+
+      for (const mgm of messageGroupMessages) {
+        const { messageId } = mgm
+        await deleteMessageGroupMessage(messageId, groupId)
+        await deleteMessageById(messageId)
+      }
+      console.log({ messageGroupMessages })
+      await deleteMessageGroupById(groupId)
+    }
+    console.log({ messageGroups })
+
     // Delete the conversation and all related messages
     const result = await deleteConversationById(id)
 
@@ -116,6 +164,7 @@ app.delete("/:id", async (c) => {
     return c.json({
       success: true,
       message: "Conversation deleted successfully",
+      data: conversation
     })
   } catch (error) {
     console.error("Error deleting conversation:", error)
