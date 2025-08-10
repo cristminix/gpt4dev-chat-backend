@@ -54,7 +54,6 @@ export const messages = sqliteTable("messages", {
     .references(() => participants.id),
   content: text("content").notNull(),
   parentId: text("parent_id"),
-  groupId: text("group_id"),
   collapsed: numeric("collapsed").default("0"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()

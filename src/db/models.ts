@@ -57,6 +57,7 @@ export {
   getMessageGroupById,
   getAllMessageGroups,
   getMessageGroupsByConversationId,
+  checkMessageGroupExists,
   updateMessageGroup,
   deleteMessageGroupById,
 } from "./message-groups"

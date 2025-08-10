@@ -6,6 +6,7 @@ import {
   getParticipantByUsername,
   createParticipant,
   createMessageGroupMessage,
+  checkMessageGroupExists,
 } from "../db/models"
 
 const app = new Hono()
@@ -45,23 +46,32 @@ app.post("/conversations/:conversationId", async (c) => {
     console.log(`Using participant`, participant)
     // await new Promise((resolve) => setTimeout(resolve, 512)) // Simulate async operation
     // Create the message
+    // Remove groupId from body to prevent it from being passed to createMessage
+    const { groupId, ...bodyWithoutGroupId } = body;
+
     const messageData = {
-      id: body.id?.toString() || Math.floor(Math.random() * 1000000).toString(), // Use provided ID or generate a random one
-      content: body.content,
+      id: bodyWithoutGroupId.id?.toString() || Math.floor(Math.random() * 1000000).toString(), // Use provided ID or generate a random one
+      content: bodyWithoutGroupId.content,
       conversationId,
       participantId: participant.id,
-      parentId: body.parentId,
+      parentId: bodyWithoutGroupId.parentId,
     }
 
     // Remove groupId from messageData as it's not a direct column in messages table
     const [message] = await createMessage(messageData)
 
     // If groupId is provided, create an entry in message_group_messages
-    if (body.groupId && message) {
-      await createMessageGroupMessage({
-        messageId: message.id,
-        messageGroupId: body.groupId,
-      })
+    // But only if the groupId doesn't already exist in message_groups
+    if (groupId && message) {
+      const groupExists = await checkMessageGroupExists(groupId)
+      console.log({ groupExists })
+      if (groupExists) {
+        const messageGroupMessage = await createMessageGroupMessage({
+          messageId: message.id,
+          messageGroupId: groupId,
+        })
+        console.log({ messageGroupMessage })
+      }
     }
 
     // Prepare the response data

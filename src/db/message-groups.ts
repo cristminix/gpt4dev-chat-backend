@@ -19,6 +19,12 @@ export const createMessageGroup = async (messageGroup: NewMessageGroup) => {
   return await db.insert(messageGroups).values(messageGroupWithId).returning()
 }
 
+
+
+export const getAllMessageGroups = async () => {
+  return await db.select().from(messageGroups).all()
+}
+
 export const getMessageGroupById = async (id: string) => {
   return await db
     .select()
@@ -27,16 +33,22 @@ export const getMessageGroupById = async (id: string) => {
     .get()
 }
 
-export const getAllMessageGroups = async () => {
-  return await db.select().from(messageGroups).all()
-}
-
 export const getMessageGroupsByConversationId = async (conversationId: string) => {
   return await db
     .select()
     .from(messageGroups)
     .where(eq(messageGroups.conversationId, conversationId))
     .all()
+}
+
+export const checkMessageGroupExists = async (id: string) => {
+  const result = await db
+    .select({ id: messageGroups.id })
+    .from(messageGroups)
+    .where(eq(messageGroups.id, id))
+    .get()
+
+  return !!result
 }
 
 export const updateMessageGroup = async (
