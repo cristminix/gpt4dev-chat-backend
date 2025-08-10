@@ -8,6 +8,7 @@ import {
   createMessageGroupMessage,
   checkMessageGroupExists,
 } from "../db/models"
+import { getMessagesById } from "../db/messages"
 
 const app = new Hono()
 
@@ -58,7 +59,11 @@ app.post("/conversations/:conversationId", async (c) => {
     }
 
     // Remove groupId from messageData as it's not a direct column in messages table
-    const [message] = await createMessage(messageData)
+    let [message] = await getMessagesById(messageData.id)
+    if (!message) {
+      const [newMessage] = await createMessage(messageData)
+      message = newMessage
+    }
 
     // If groupId is provided, create an entry in message_group_messages
     // But only if the groupId doesn't already exist in message_groups

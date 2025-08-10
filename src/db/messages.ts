@@ -20,7 +20,14 @@ export const getMessagesByConversationId = async (conversationId: string) => {
     .orderBy(desc(messages.createdAt))
     .all()
 }
-
+export const getMessagesById = async (id: string) => {
+  return await db
+    .select()
+    .from(messages)
+    .where(eq(messages.id, id))
+    .orderBy(desc(messages.createdAt))
+    .all()
+}
 export const deleteMessageById = async (id: string) => {
   console.log(`Attempting to delete message with ID: ${id}`)
   const result = await db
