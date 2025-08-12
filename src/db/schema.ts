@@ -55,6 +55,7 @@ export const messages = sqliteTable("messages", {
   content: text("content").notNull(),
   parentId: text("parent_id"),
   collapsed: numeric("collapsed").default("0"),
+  hasError: numeric("has_error").default("0"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(new Date()),

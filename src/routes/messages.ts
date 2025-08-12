@@ -7,6 +7,7 @@ import {
   createParticipant,
   createMessageGroupMessage,
   checkMessageGroupExists,
+  updateMessageById,
 } from "../db/models"
 import { getMessagesById } from "../db/messages"
 
@@ -48,10 +49,12 @@ app.post("/conversations/:conversationId", async (c) => {
     // await new Promise((resolve) => setTimeout(resolve, 512)) // Simulate async operation
     // Create the message
     // Remove groupId from body to prevent it from being passed to createMessage
-    const { groupId, ...bodyWithoutGroupId } = body;
+    const { groupId, ...bodyWithoutGroupId } = body
 
     const messageData = {
-      id: bodyWithoutGroupId.id?.toString() || Math.floor(Math.random() * 1000000).toString(), // Use provided ID or generate a random one
+      id:
+        bodyWithoutGroupId.id?.toString() ||
+        Math.floor(Math.random() * 1000000).toString(), // Use provided ID or generate a random one
       content: bodyWithoutGroupId.content,
       conversationId,
       participantId: participant.id,
@@ -129,6 +132,35 @@ app.delete("/conversations/:conversationId/:messageId", async (c) => {
   } catch (error) {
     console.error("Error deleting message:", error)
     return c.json({ success: false, error: "Failed to delete message" }, 500)
+  }
+})
+
+// Update a message by ID
+app.put("/conversations/:conversationId/:messageId", async (c) => {
+  try {
+    const messageId = c.req.param("messageId")
+    const body = await c.req.json()
+
+    console.log(`Update message request - Message ID: ${messageId}`, body)
+
+    // Remove fields that shouldn't be updated
+    const { id, conversationId, participantId, ...updateData } = body
+
+    // Update the message
+    const existing = await getMessagesById(body.id)
+    console.log({ existing })
+    const result = await updateMessageById(messageId, updateData)
+
+    if (result.length === 0) {
+      console.log(`Message not found for ID: ${messageId}`)
+      return c.json({ success: false, error: "Message not found" }, 404)
+    }
+
+    console.log(`Message updated successfully - ID: ${messageId}`)
+    return c.json({ success: true, data: result })
+  } catch (error) {
+    console.error("Error updating message:", error)
+    return c.json({ success: false, error: "Failed to update message" }, 500)
   }
 })
 

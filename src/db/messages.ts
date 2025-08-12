@@ -1,6 +1,11 @@
 import { eq, desc, asc } from "drizzle-orm"
 import { db } from "."
-import { messages, participants, messageGroupMessages, messageGroups } from "./schema"
+import {
+  messages,
+  participants,
+  messageGroupMessages,
+  messageGroups,
+} from "./schema"
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm"
 
 // Types
@@ -38,6 +43,20 @@ export const deleteMessageById = async (id: string) => {
   return result
 }
 
+export const updateMessageById = async (
+  id: string,
+  data: Partial<NewMessage>
+) => {
+  console.log(`Attempting to update message with ID: ${id}`, data)
+  const result = await db
+    .update(messages)
+    .set(data)
+    .where(eq(messages.id, id))
+    .returning()
+  console.log(`Update message result:`, result)
+  return result
+}
+
 // Refactored function to get messages with participant information including role
 export const getMessagesWithParticipantByConversationId = async (
   conversationId: string
@@ -55,7 +74,10 @@ export const getMessagesWithParticipantByConversationId = async (
     })
     .from(messages)
     .innerJoin(participants, eq(messages.participantId, participants.id))
-    .leftJoin(messageGroupMessages, eq(messages.id, messageGroupMessages.messageId))
+    .leftJoin(
+      messageGroupMessages,
+      eq(messages.id, messageGroupMessages.messageId)
+    )
     .where(eq(messages.conversationId, conversationId))
     .orderBy(asc(messages.createdAt))
     .all()

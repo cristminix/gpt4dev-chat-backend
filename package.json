@@ -2,7 +2,8 @@
   "name": "chat-backend",
   "version": "1.0.0",
   "description": "A simple chat application backend built with Hono, SQLite, and Drizzle ORM",
-  "main": "src/index.ts",
+  "main": "dist/server.js",
+  "types": "dist/server.d.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
@@ -22,18 +23,19 @@
   "author": "Kilo Code",
   "license": "MIT",
   "dependencies": {
-    "hono": "^4.4.7",
-    "drizzle-orm": "^0.31.2",
-    "better-sqlite3": "^9.6.0",
     "@hono/node-server": "^1.11.1",
+    "better-sqlite3": "^12.2.0",
+    "drizzle-orm": "^0.31.2",
+    "hono": "^4.4.7",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.10",
     "@types/node": "^20.14.9",
+    "@types/uuid": "^9.0.8",
     "drizzle-kit": "^0.22.8",
+    "ts-node": "^10.9.2",
     "tsx": "^4.15.7",
-    "typescript": "^5.5.2",
-    "@types/uuid": "^9.0.8"
+    "typescript": "^5.5.2"
   }
 }

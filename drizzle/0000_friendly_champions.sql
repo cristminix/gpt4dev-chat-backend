@@ -48,6 +48,7 @@ CREATE TABLE `messages` (
 	`content` text NOT NULL,
 	`parent_id` text,
 	`collapsed` numeric DEFAULT '0',
+	`has_error` numeric DEFAULT '0',
 	`created_at` integer DEFAULT '"2025-08-10T09:07:31.447Z"' NOT NULL,
 	FOREIGN KEY (`conversation_id`) REFERENCES `conversations`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`participant_id`) REFERENCES `participants`(`id`) ON UPDATE no action ON DELETE no action
