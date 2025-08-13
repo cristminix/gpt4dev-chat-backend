@@ -1,4 +1,4 @@
-import { eq, desc, asc } from "drizzle-orm"
+import { eq, desc, asc, sql } from "drizzle-orm"
 import { db } from "."
 import {
   messages,
@@ -71,6 +71,10 @@ export const getMessagesWithParticipantByConversationId = async (
       parentId: messages.parentId,
       collapsed: messages.collapsed,
       groupId: messageGroupMessages.messageGroupId,
+      replyCount:
+        sql<number>`(SELECT COUNT(*) FROM messages AS replies WHERE replies.parent_id = messages.id)`.as(
+          "replyCount"
+        ),
     })
     .from(messages)
     .innerJoin(participants, eq(messages.participantId, participants.id))

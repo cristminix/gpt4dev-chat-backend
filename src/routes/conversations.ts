@@ -77,7 +77,7 @@ app.get("/:id/message-groups", async (c) => {
 
     return c.json({
       success: true,
-      data: messageGroups
+      data: messageGroups,
     })
   } catch (error) {
     console.error("Error fetching message groups:", error)
@@ -139,12 +139,16 @@ app.delete("/:id", async (c) => {
     const messageGroups = await getMessageGroupsByConversationId(id)
     for (const group of messageGroups) {
       const groupId = group.id
-      const messageGroupMessages = await getMessageGroupMessagesByGroupId(groupId)
+      const messageGroupMessages = await getMessageGroupMessagesByGroupId(
+        groupId
+      )
 
       for (const mgm of messageGroupMessages) {
         const { messageId } = mgm
         await deleteMessageGroupMessage(messageId, groupId)
-        await deleteMessageById(messageId)
+        try {
+          await deleteMessageById(messageId)
+        } catch (error) {}
       }
       console.log({ messageGroupMessages })
       await deleteMessageGroupById(groupId)
@@ -164,7 +168,7 @@ app.delete("/:id", async (c) => {
     return c.json({
       success: true,
       message: "Conversation deleted successfully",
-      data: conversation
+      data: conversation,
     })
   } catch (error) {
     console.error("Error deleting conversation:", error)
