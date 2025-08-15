@@ -10,6 +10,7 @@ import {
   deleteMessageById,
   deleteMessageGroupMessage,
   deleteMessageGroupById,
+  deleteMessageByConversationId,
 } from "../db/models"
 
 const app = new Hono()
@@ -148,15 +149,19 @@ app.delete("/:id", async (c) => {
         await deleteMessageGroupMessage(messageId, groupId)
         try {
           await deleteMessageById(messageId)
-        } catch (error) {}
+        } catch (error) {
+          console.error(error)
+        }
       }
       console.log({ messageGroupMessages })
       await deleteMessageGroupById(groupId)
     }
     console.log({ messageGroups })
+    let result = await deleteMessageByConversationId(id)
 
     // Delete the conversation and all related messages
-    const result = await deleteConversationById(id)
+    //@ts-ignore
+    result = await deleteConversationById(id)
 
     if (result.length === 0) {
       return c.json(

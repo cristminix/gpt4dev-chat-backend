@@ -28,6 +28,7 @@ export {
   deleteMessageById,
   getMessagesWithParticipantByConversationId,
   updateMessageById,
+  deleteMessageByConversationId,
 } from "./messages"
 
 // Export types and operations from conversation-members

@@ -145,7 +145,7 @@ app.put("/conversations/:conversationId/:messageId", async (c) => {
 
     // Remove fields that shouldn't be updated
     const { id, conversationId, participantId, ...updateData } = body
-
+    const { groupId } = body
     // Update the message
     const existing = await getMessagesById(body.id)
     console.log({ existing })
@@ -157,7 +157,16 @@ app.put("/conversations/:conversationId/:messageId", async (c) => {
     }
 
     console.log(`Message updated successfully - ID: ${messageId}`)
-    return c.json({ success: true, data: result })
+    return c.json({
+      success: true,
+      data: result.map((m) => {
+        if (m.id === messageId) {
+          //@ts-ignore
+          m.groupId = groupId
+        }
+        return m
+      }),
+    })
   } catch (error) {
     console.error("Error updating message:", error)
     return c.json({ success: false, error: "Failed to update message" }, 500)

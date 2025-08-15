@@ -42,7 +42,17 @@ export const deleteMessageById = async (id: string) => {
   console.log(`Delete message result:`, result)
   return result
 }
-
+export const deleteMessageByConversationId = async (conversationId: string) => {
+  console.log(
+    `Attempting to delete message with conversation ID: ${conversationId}`
+  )
+  const result = await db
+    .delete(messages)
+    .where(eq(messages.conversationId, conversationId))
+    .returning()
+  console.log(`Delete message result:`, result)
+  return result
+}
 export const updateMessageById = async (
   id: string,
   data: Partial<NewMessage>
