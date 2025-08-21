@@ -7,6 +7,7 @@ import {
   createFolder,
   createMessageGroup,
   createMessageGroupMessage,
+  createUser,
 } from "./models"
 import { v4 as uuidv4 } from "uuid"
 
@@ -14,6 +15,28 @@ async function seed() {
   console.log("Seeding database...")
 
   try {
+    // Create users
+    console.log("Creating users...")
+    const user1Result = await createUser({
+      username: "alice",
+      email: "alice@example.com",
+      fullname: "Alice Smith",
+      passwd: "hashed_password_1", // In a real app, this would be a hashed password
+    })
+    const user1 = user1Result[0]
+    if (!user1) throw new Error("Failed to create user1")
+
+    const user2Result = await createUser({
+      username: "bob",
+      email: "bob@example.com",
+      fullname: "Bob Johnson",
+      passwd: "hashed_password_2", // In a real app, this would be a hashed password
+    })
+    const user2 = user2Result[0]
+    if (!user2) throw new Error("Failed to create user2")
+
+    console.log("Users created:", [user1, user2])
+
     // Create participants
     console.log("Creating participants...")
     const participant1Result = await createParticipant({
@@ -106,18 +129,21 @@ async function seed() {
     console.log("Creating message groups...")
     const messageGroup1Result = await createMessageGroup({
       id: uuidv4(),
+      conversationId: conversation1.id,
     })
     const messageGroup1 = messageGroup1Result[0]
     if (!messageGroup1) throw new Error("Failed to create messageGroup1")
 
     const messageGroup2Result = await createMessageGroup({
       id: uuidv4(),
+      conversationId: conversation2.id,
     })
     const messageGroup2 = messageGroup2Result[0]
     if (!messageGroup2) throw new Error("Failed to create messageGroup2")
 
     const messageGroup3Result = await createMessageGroup({
       id: uuidv4(),
+      conversationId: conversation3.id,
     })
     const messageGroup3 = messageGroup3Result[0]
     if (!messageGroup3) throw new Error("Failed to create messageGroup3")

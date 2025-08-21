@@ -75,3 +75,22 @@ export {
   getMessageGroupMessagesByMessageId,
   deleteMessageGroupMessage,
 } from "./message-group-messages"
+
+// Export types and operations from attachments
+export type { Attachment, NewAttachment } from "./attachments"
+export {
+  createAttachment,
+  getAttachmentById,
+  getAllAttachments,
+  updateAttachmentById,
+  deleteAttachmentById,
+} from "./attachments"
+
+// Export types and operations from users
+export type { User, NewUser } from "./users"
+export {
+  createUser,
+  getUserById,
+  getUserByUsername,
+  getUserByEmail,
+} from "./users"

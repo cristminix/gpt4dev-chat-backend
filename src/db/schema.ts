@@ -34,6 +34,7 @@ export const conversations = sqliteTable("conversations", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   systemMessage: text("system_message").default(""),
+  userId: integer("user_id").default(1),
   enableSystemMessage: numeric("enable_system_message").default("1"),
   folderId: text("folder_id").references(() => folders.id),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -54,9 +55,24 @@ export const messages = sqliteTable("messages", {
     .references(() => participants.id),
   content: text("content").notNull(),
   parentId: text("parent_id"),
+  reasoningContent: text("reasoning_content"),
   collapsed: numeric("collapsed").default("0"),
   hasError: numeric("has_error").default("0"),
   createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+})
+
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  fullname: text("fullname").notNull(),
+  passwd: text("passwd").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .default(new Date()),
 })
@@ -103,3 +119,15 @@ export const messageGroupMessages = sqliteTable(
     pk: primaryKey({ columns: [table.messageId, table.messageGroupId] }),
   })
 )
+
+export const attachments = sqliteTable("attachments", {
+  id: text("id").primaryKey(),
+  filename: text("filename").notNull(),
+  mimetype: text("mimetype").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+})

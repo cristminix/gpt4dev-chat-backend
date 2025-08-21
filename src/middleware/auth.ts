@@ -1,4 +1,5 @@
 import { Context, Next } from "hono"
+import { getUserById } from "../db/models"
 
 // Mock authentication middleware
 // In a real application, this would check for a valid JWT or session
@@ -21,8 +22,15 @@ export const authMiddleware = async (c: Context, next: Next) => {
     return c.json({ success: false, error: "Invalid authorization token" }, 401)
   }
 
-  // Add participant info to context (simplified)
-  c.set("user", { id: 1, username: "demo_participant" })
+  // Get user info from database (simplified)
+  const user = await getUserById(1) // In a real app, you would get the user ID from the token
+
+  if (!user) {
+    return c.json({ success: false, error: "User not found" }, 401)
+  }
+
+  // Add user info to context
+  c.set("user", { id: user.id, username: user.username })
 
   await next()
 }

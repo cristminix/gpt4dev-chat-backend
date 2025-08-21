@@ -42,7 +42,19 @@ export const getAllConversations = async () => {
     .orderBy(desc(conversations.updatedAt))
     .all()
 }
-
+export const getAllConversationsByUserID = async (userId: number) => {
+  return await db
+    .select({
+      id: conversations.id,
+      title: conversations.title,
+      createdAt: conversations.createdAt,
+      updatedAt: conversations.updatedAt,
+    })
+    .from(conversations)
+    .where(eq(conversations.userId, userId))
+    .orderBy(desc(conversations.updatedAt))
+    .all()
+}
 export const updateConversation = async (
   id: string,
   conversation: UpdateConversation

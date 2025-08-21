@@ -12,6 +12,7 @@ import {
   deleteMessageGroupById,
   deleteMessageByConversationId,
 } from "../db/models"
+import { getAllConversationsByUserID } from "src/db/conversations"
 
 const app = new Hono()
 
@@ -30,9 +31,10 @@ app.post("/", async (c) => {
 })
 
 // Get all conversations
-app.get("/", async (c) => {
+app.get("/users/:userId", async (c) => {
   try {
-    const conversations = await getAllConversations()
+    const userId = parseInt(c.req.param("userId"))
+    const conversations = await getAllConversationsByUserID(userId)
     return c.json({ success: true, data: conversations })
   } catch (error) {
     console.error("Error fetching conversations:", error)
