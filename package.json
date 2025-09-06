@@ -6,8 +6,8 @@
   "types": "dist/server.d.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
+    "build": "esbuild --minify --platform=node --bundle src/server.ts --outdir=build ",
+    "start": "node build/server.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",
@@ -34,6 +34,7 @@
     "@types/node": "^20.14.9",
     "@types/uuid": "^9.0.8",
     "drizzle-kit": "^0.22.8",
+    "esbuild": "^0.25.9",
     "ts-node": "^10.9.2",
     "tsx": "^4.15.7",
     "typescript": "^5.5.2"

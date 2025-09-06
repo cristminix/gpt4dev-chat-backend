@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm"
 import {
   sqliteTable,
   text,
@@ -12,10 +13,10 @@ export const participants = sqliteTable("participants", {
   role: text("role").notNull().default("member"), // 'admin', 'moderator', 'member'
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
 })
 
 export const folders = sqliteTable("folders", {
@@ -24,10 +25,10 @@ export const folders = sqliteTable("folders", {
   description: text("description"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
 })
 
 export const conversations = sqliteTable("conversations", {
@@ -39,10 +40,10 @@ export const conversations = sqliteTable("conversations", {
   folderId: text("folder_id").references(() => folders.id),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
 })
 
 export const messages = sqliteTable("messages", {
@@ -60,7 +61,7 @@ export const messages = sqliteTable("messages", {
   hasError: numeric("has_error").default("0"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
 })
 
 export const users = sqliteTable("users", {
@@ -71,10 +72,10 @@ export const users = sqliteTable("users", {
   passwd: text("passwd").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
 })
 
 export const conversationMembers = sqliteTable(
@@ -99,10 +100,10 @@ export const messageGroups = sqliteTable("message_groups", {
     .references(() => conversations.id),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
 })
 
 export const messageGroupMessages = sqliteTable(
@@ -126,8 +127,23 @@ export const attachments = sqliteTable("attachments", {
   mimetype: text("mimetype").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(strftime('%s', 'now'))`),
+})
+
+export const sessions = sqliteTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id),
+  sessionToken: text("session_token").notNull().unique(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now'))`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now'))`),
 })

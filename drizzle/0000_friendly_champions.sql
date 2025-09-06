@@ -9,6 +9,18 @@ CREATE TABLE `users` (
 	`updated_at` integer DEFAULT '"2025-08-21T04:20:00.000Z"' NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `sessions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`user_id` integer NOT NULL,
+	`session_token` text NOT NULL,
+	`expires_at` integer NOT NULL,
+	`created_at` integer DEFAULT '"2025-08-21T04:20:00.000Z"' NOT NULL,
+	`updated_at` integer DEFAULT '"2025-08-21T04:20:00.000Z"' NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `sessions_session_token_unique` ON `sessions` (`session_token`);
+--> statement-breakpoint
 CREATE UNIQUE INDEX `users_username_unique` ON `users` (`username`);
 --> statement-breakpoint
 CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);

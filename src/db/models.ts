@@ -94,3 +94,15 @@ export {
   getUserByUsername,
   getUserByEmail,
 } from "./users"
+
+// Export types and operations from sessions
+export type { Session, NewSession } from "./sessions"
+export {
+  createSession,
+  getSessionById,
+  getSessionByToken,
+  getValidSessionByToken,
+  deleteSessionById,
+  deleteSessionByToken,
+  deleteExpiredSessions,
+} from "./sessions"
