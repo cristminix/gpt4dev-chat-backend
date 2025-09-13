@@ -16,10 +16,12 @@ export const createMessageGroup = async (messageGroup: NewMessageGroup) => {
     id: messageGroup.id || uuidv4(),
   }
 
-  return await db.insert(messageGroups).values(messageGroupWithId).returning()
+  const [row] = await db
+    .insert(messageGroups)
+    .values(messageGroupWithId)
+    .returning()
+  return row
 }
-
-
 
 export const getAllMessageGroups = async () => {
   return await db.select().from(messageGroups).all()
@@ -33,7 +35,9 @@ export const getMessageGroupById = async (id: string) => {
     .get()
 }
 
-export const getMessageGroupsByConversationId = async (conversationId: string) => {
+export const getMessageGroupsByConversationId = async (
+  conversationId: string
+) => {
   return await db
     .select()
     .from(messageGroups)

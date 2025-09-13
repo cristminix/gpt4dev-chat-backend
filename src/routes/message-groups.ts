@@ -14,7 +14,9 @@ const app = new Hono()
 app.post("/", async (c) => {
   try {
     const body = await c.req.json()
-    const messageGroup = await createMessageGroup(body)
+    const { id } = body
+    let messageGroup = await getMessageGroupById(id)
+    if (!messageGroup) messageGroup = await createMessageGroup(body)
     return c.json({ success: true, data: messageGroup })
   } catch (error) {
     console.error("Error creating message group:", error)
@@ -46,7 +48,10 @@ app.get("/conversation/:conversationId", async (c) => {
   } catch (error) {
     console.error("Error fetching message groups by conversation ID:", error)
     return c.json(
-      { success: false, error: "Failed to fetch message groups by conversation ID" },
+      {
+        success: false,
+        error: "Failed to fetch message groups by conversation ID",
+      },
       500
     )
   }
