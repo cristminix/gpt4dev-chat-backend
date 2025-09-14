@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm"
+import { eq, desc, sql } from "drizzle-orm"
 import { db } from "."
 import { conversations, messages, conversationMembers } from "./schema"
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm"
@@ -54,6 +54,18 @@ export const getAllConversationsByUserID = async (userId: number) => {
     .where(eq(conversations.userId, userId))
     .orderBy(desc(conversations.updatedAt))
     .all()
+}
+
+export const getConversationCountByUserID = async (userId: number) => {
+  const result = await db
+    .select({
+      count: sql<number>`count(*)`,
+    })
+    .from(conversations)
+    .where(eq(conversations.userId, userId))
+    .get()
+
+  return result?.count ?? 0
 }
 export const updateConversation = async (
   id: string,

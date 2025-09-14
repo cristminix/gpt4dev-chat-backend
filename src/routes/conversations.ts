@@ -12,7 +12,10 @@ import {
   deleteMessageGroupById,
   deleteMessageByConversationId,
 } from "../db/models"
-import { getAllConversationsByUserID } from "src/db/conversations"
+import {
+  getAllConversationsByUserID,
+  getConversationCountByUserID,
+} from "src/db/conversations"
 
 const app = new Hono()
 
@@ -86,6 +89,21 @@ app.get("/:id/message-groups", async (c) => {
     console.error("Error fetching message groups:", error)
     return c.json(
       { success: false, error: "Failed to fetch message groups" },
+      500
+    )
+  }
+})
+
+// Get count of conversations by user ID
+app.get("/users/:userId/counts", async (c) => {
+  try {
+    const userId = parseInt(c.req.param("userId"))
+    const count = await getConversationCountByUserID(userId)
+    return c.json({ success: true, data: { count } })
+  } catch (error) {
+    console.error("Error fetching conversation count:", error)
+    return c.json(
+      { success: false, error: "Failed to fetch conversation count" },
       500
     )
   }
