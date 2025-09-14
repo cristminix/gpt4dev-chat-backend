@@ -1,9 +1,10 @@
-import { Hono } from "hono"
+import { Context, Hono } from "hono"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
 import { requestLogger } from "./middleware/logger"
 import chatRoutes from "./routes/chat"
 import llmChatRoutes from "./routes/llm-chat"
+import { handleDummyCompletions } from "./routes/dummyCompletions"
 
 // Extend Hono context type
 declare module "hono" {
@@ -34,7 +35,11 @@ app.get("/", (c) => {
     timestamp: new Date().toISOString(),
   })
 })
+app.post("/v1/chat/completions", async (c: Context) => {
+  const chatRequest = await c.req.json()
 
+  return await handleDummyCompletions(chatRequest, c)
+})
 // 404 handler
 app.notFound((c) => {
   return c.json({ success: false, error: "Route not found" }, 404)
